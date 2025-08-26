@@ -720,10 +720,39 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             pdfModal = new bootstrap.Modal(document.getElementById('pdfModal'));
-            loadSOPs();
-            setupEventListeners();
-            setupFilterListeners();
+            
+            // Test Firebase connection before loading data
+            testFirebaseConnection()
+                .then(() => {
+                    setupEventListeners();
+                    setupFilterListeners();
+                    loadSOPs();
+                })
+                .catch((error) => {
+                    console.error('Firebase connection failed:', error);
+                    showAlert(`
+                        <strong>Error: Tidak dapat terhubung ke Firebase</strong><br>
+                        ${error.message}<br>
+                        <button class="btn btn-sm btn-primary mt-2" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Refresh Halaman
+                        </button>
+                    `, 'danger');
+                });
         });
+
+        // Test Firebase connection
+        async function testFirebaseConnection() {
+            try {
+                // Try to read collection info (doesn't require actual documents)
+                const testQuery = query(collection(db, 'sop-documents'));
+                await getDocs(testQuery);
+                console.log('Firebase connection successful');
+                return true;
+            } catch (error) {
+                console.error('Firebase connection test failed:', error);
+                throw error;
+            }
+        }
 
         // Setup event listeners
         function setupEventListeners() {
@@ -973,12 +1002,39 @@
 
                 uploadTask.on('state_changed',
                     (snapshot) => {
-                        // Progress monitoring can be added here
+                        // Calculate progress percentage
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        document.getElementById('loadingSpinner').innerHTML = `
+                            <div class="spinner-border" style="color: var(--secondary-color);" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Mengupload file... ${progress.toFixed(0)}%</p>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar" style="width: ${progress}%; background-color: var(--secondary-color);"></div>
+                            </div>
+                        `;
                     },
                     (error) => {
                         console.error('Upload error:', error);
-                        showAlert('Gagal mengupload file. Silakan coba lagi.', 'danger');
                         document.getElementById('loadingSpinner').style.display = 'none';
+                        
+                        if (error.code === 'storage/unauthorized') {
+                            showAlert(`
+                                <strong>Error: Permission Denied</strong><br>
+                                Firebase Storage rules belum dikonfigurasi dengan benar.<br>
+                                Atau domain ${window.location.hostname} belum ter-authorize.<br>
+                                Silakan hubungi administrator.
+                            `, 'danger');
+                        } else if (error.code === 'storage/quota-exceeded') {
+                            showAlert('Storage quota terlampaui. Hubungi administrator.', 'danger');
+                        } else {
+                            showAlert(`
+                                <strong>Gagal mengupload file:</strong> ${error.message}<br>
+                                <button class="btn btn-sm btn-outline-primary mt-2" onclick="document.getElementById('sopForm').dispatchEvent(new Event('submit'))">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Coba Lagi
+                                </button>
+                            `, 'danger');
+                        }
                     },
                     async () => {
                         try {
@@ -1032,6 +1088,8 @@
         // Load SOPs from Firestore
         async function loadSOPs() {
             try {
+                showAlert('Memuat data SOP...', 'info');
+                
                 const q = query(collection(db, 'sop-documents'), orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
                 
@@ -1043,10 +1101,26 @@
                 filteredData = [...sopData];
                 renderDepartments();
                 updateStats();
+                
+                showAlert(`Berhasil memuat ${sopData.length} dokumen SOP/SE`, 'success');
 
             } catch (error) {
                 console.error('Error loading SOPs:', error);
-                showAlert('Gagal memuat data SOP. Silakan refresh halaman.', 'danger');
+                
+                if (error.code === 'permission-denied') {
+                    showAlert(`
+                        <strong>Error: Permission Denied</strong><br>
+                        Firestore rules belum dikonfigurasi dengan benar.<br>
+                        Silakan hubungi administrator atau update rules Firebase.
+                    `, 'danger');
+                } else {
+                    showAlert(`
+                        <strong>Error memuat data:</strong> ${error.message}<br>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadSOPs()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Coba Lagi
+                        </button>
+                    `, 'danger');
+                }
             }
         }
 
@@ -1147,10 +1221,21 @@
 
         // Open PDF in modal
         window.openPDF = function(url, title) {
-            document.getElementById('pdfModalTitle').textContent = title;
-            document.getElementById('pdfViewer').src = url;
-            document.getElementById('downloadPDF').href = url;
-            pdfModal.show();
+            try {
+                document.getElementById('pdfModalTitle').textContent = title;
+                document.getElementById('pdfViewer').src = url;
+                document.getElementById('downloadPDF').href = url;
+                pdfModal.show();
+            } catch (error) {
+                console.error('Error opening PDF:', error);
+                showAlert(`
+                    <strong>Error membuka PDF:</strong><br>
+                    File mungkin sedang tidak tersedia atau ada masalah koneksi.<br>
+                    <a href="${url}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                        <i class="bi bi-download me-1"></i>Download Langsung
+                    </a>
+                `, 'warning');
+            }
         };
 
         // Toggle add form
