@@ -1040,6 +1040,9 @@
                         try {
                             // Get download URL
                             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                            
+                            // Create public access token (alternative method for CORS issues)
+                            const publicURL = downloadURL.split('?')[0] + '?alt=media';
 
                             // Save to Firestore
                             await addDoc(collection(db, 'sop-documents'), {
@@ -1051,6 +1054,7 @@
                                 fileName: pdfFile.name,
                                 fileSize: pdfFile.size,
                                 downloadURL: downloadURL,
+                                publicURL: publicURL, // Alternative URL for preview
                                 createdAt: serverTimestamp()
                             });
 
@@ -1219,19 +1223,76 @@
             }
         };
 
-        // Open PDF in modal
+        // Open PDF in modal with CORS handling
         window.openPDF = function(url, title) {
             try {
                 document.getElementById('pdfModalTitle').textContent = title;
-                document.getElementById('pdfViewer').src = url;
                 document.getElementById('downloadPDF').href = url;
+                
+                // Try to load PDF with fallback for CORS issues
+                const iframe = document.getElementById('pdfViewer');
+                
+                // Method 1: Direct iframe (may have CORS issues)
+                iframe.src = url;
+                
+                // Method 2: Fallback if CORS fails
+                iframe.onerror = function() {
+                    console.warn('Direct PDF loading failed, using alternative method');
+                    iframe.srcdoc = `
+                        <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif;">
+                            <i class="bi bi-file-pdf" style="font-size: 4rem; color: #e74c3c;"></i>
+                            <h3 style="margin: 20px 0; color: #2c3e50;">PDF Preview Tidak Tersedia</h3>
+                            <p style="color: #7f8c8d; margin-bottom: 30px;">
+                                Karena kebijakan keamanan browser, preview PDF tidak dapat ditampilkan.<br>
+                                Silakan download file untuk melihat isinya.
+                            </p>
+                            <a href="${url}" target="_blank" 
+                               style="background: #3498db; color: white; padding: 12px 24px; 
+                                      text-decoration: none; border-radius: 8px; display: inline-block;">
+                                <i class="bi bi-download"></i> Download & Buka PDF
+                            </a>
+                        </div>
+                    `;
+                };
+                
+                // Check if iframe loads properly
+                setTimeout(() => {
+                    try {
+                        if (!iframe.contentDocument && !iframe.contentWindow) {
+                            throw new Error('CORS blocked');
+                        }
+                    } catch (e) {
+                        console.warn('PDF preview blocked by CORS, showing download option');
+                        iframe.srcdoc = `
+                            <div style="padding: 40px; text-align: center; font-family: Arial, sans-serif; background: #f8f9fa;">
+                                <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto;">
+                                    <i style="font-size: 4rem; color: var(--primary-color);">📄</i>
+                                    <h3 style="margin: 20px 0; color: var(--primary-color);">Preview PDF</h3>
+                                    <p style="color: #666; margin-bottom: 30px; line-height: 1.5;">
+                                        <strong>File:</strong> ${title}<br><br>
+                                        Klik tombol di bawah untuk membuka PDF di tab baru
+                                    </p>
+                                    <a href="${url}" target="_blank" 
+                                       style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
+                                              color: white; padding: 15px 30px; text-decoration: none; 
+                                              border-radius: 25px; display: inline-block; font-weight: 600;
+                                              box-shadow: 0 4px 15px rgba(193, 70, 0, 0.3);">
+                                        📥 Buka PDF
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }, 1000);
+                
                 pdfModal.show();
+                
             } catch (error) {
                 console.error('Error opening PDF:', error);
                 showAlert(`
                     <strong>Error membuka PDF:</strong><br>
-                    File mungkin sedang tidak tersedia atau ada masalah koneksi.<br>
-                    <a href="${url}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                    ${error.message}<br>
+                    <a href="${url}" target="_blank" class="btn btn-sm btn-custom mt-2">
                         <i class="bi bi-download me-1"></i>Download Langsung
                     </a>
                 `, 'warning');
