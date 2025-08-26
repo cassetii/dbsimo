@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database SIMO - Standar Operasional Prosedur</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #C14600;
+            --secondary-color: #FF9D23;
+            --tertiary-color: #E5D0AC;
+            --light-color: #FEF9E1;
+            --dark-text: #2c3e50;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--light-color) 0%, var(--tertiary-color) 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-text);
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(193, 70, 0, 0.15);
+            margin: 20px auto;
+            padding: 30px;
+            max-width: 1400px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .filter-section {
+            background: var(--light-color);
+            border: 2px solid var(--tertiary-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(193, 70, 0, 0.1);
+        }
+
+        .filter-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .search-input {
+            border: 2px solid var(--tertiary-color);
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 157, 35, 0.25);
+            outline: none;
+        }
+
+        .filter-select {
+            border: 2px solid var(--tertiary-color);
+            border-radius: 10px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            background: white;
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 157, 35, 0.25);
+            outline: none;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, var(--secondary-color), #ffb84d);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-filter:hover {
+            background: linear-gradient(135deg, #e68a1f, var(--secondary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 157, 35, 0.3);
+            color: white;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, var(--tertiary-color), #d4c4a8);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(135deg, #d4c4a8, var(--tertiary-color));
+            color: var(--primary-color);
+        }
+
+        .department-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(193, 70, 0, 0.1);
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid var(--light-color);
+        }
+
+        .department-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(193, 70, 0, 0.2);
+            border-color: var(--tertiary-color);
+        }
+
+        .department-card.hidden {
+            display: none;
+        }
+
+        .department-header {
+            color: white;
+            padding: 20px;
+            border-radius: 13px 13px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .department-header:hover {
+            filter: brightness(1.1);
+        }
+
+        .department-header h4 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .sop-count {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 5px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sop-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--light-color);
+            transition: background 0.2s ease;
+        }
+
+        .sop-item:hover {
+            background-color: var(--light-color);
+        }
+
+        .sop-item:last-child {
+            border-bottom: none;
+        }
+
+        .sop-item.hidden {
+            display: none;
+        }
+
+        .sop-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .sop-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, var(--secondary-color), #ffb84d);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #e68a1f, var(--secondary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 157, 35, 0.3);
+            color: white;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary-color), #d4501a);
+        }
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #a83c00, var(--primary-color));
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, var(--secondary-color), #ffb84d);
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+        }
+
+        .btn-pdf:hover {
+            background: linear-gradient(135deg, #e68a1f, var(--secondary-color));
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(193, 70, 0, 0.1);
+            margin-bottom: 30px;
+            border: 2px solid var(--light-color);
+        }
+
+        .form-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid var(--tertiary-color);
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 157, 35, 0.25);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--tertiary-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--light-color);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--secondary-color);
+            background: rgba(255, 157, 35, 0.1);
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-container {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: var(--light-color);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .filter-summary {
+            background: rgba(255, 157, 35, 0.1);
+            border: 1px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                padding: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .filter-buttons {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .department-header h4 {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Department specific colors */
+        .dept-perencanaan .department-header {
+            background: linear-gradient(135deg, var(--primary-color), #d4501a);
+        }
+
+        .dept-pembinaan .department-header {
+            background: linear-gradient(135deg, var(--secondary-color), #ffb84d);
+        }
+
+        .dept-pengembangan .department-header {
+            background: linear-gradient(135deg, #b8860b, var(--tertiary-color));
+            color: var(--dark-text) !important;
+        }
+
+        .dept-change .department-header {
+            background: linear-gradient(135deg, #8b4513, var(--primary-color));
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1><i class="bi bi-database-fill me-3"></i>Database SIMO</h1>
+                <p>Sistem Informasi Manajemen Operasional - Standar Operasional Prosedur & Surat Edaran Direksi</p>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-container">
+                <div class="row">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalSOP">0</span>
+                            <span class="stat-label">Total SOP/SE</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item">
+                            <span class="stat-number" id="filteredSOP">0</span>
+                            <span class="stat-label">Hasil Filter</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalDepartments">4</span>
+                            <span class="stat-label">Departemen</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalSize">0</span>
+                            <span class="stat-label">MB Data</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3 class="filter-title">
+                    <i class="bi bi-funnel-fill me-2"></i>Filter & Pencarian
+                </h3>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-search me-1"></i>Cari SOP/SE
+                        </label>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Masukkan nama SOP, nomor, atau kata kunci...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-building me-1"></i>Departemen
+                        </label>
+                        <select class="filter-select" id="departmentFilter">
+                            <option value="">Semua Departemen</option>
+                            <option value="perencanaan">Perencanaan Strategis & Kinerja Organisasi</option>
+                            <option value="pembinaan">Pembinaan Cabang</option>
+                            <option value="pengembangan">Pengembangan Organisasi</option>
+                            <option value="change">Change Management Office</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-file-text me-1"></i>Jenis Dokumen
+                        </label>
+                        <select class="filter-select" id="typeFilter">
+                            <option value="">Semua Jenis</option>
+                            <option value="SOP">Standard Operating Procedure</option>
+                            <option value="SE">Surat Edaran Direksi</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-calendar me-1"></i>Periode Upload
+                        </label>
+                        <select class="filter-select" id="dateFilter">
+                            <option value="">Semua Periode</option>
+                            <option value="today">Hari Ini</option>
+                            <option value="week">7 Hari Terakhir</option>
+                            <option value="month">30 Hari Terakhir</option>
+                            <option value="year">Tahun Ini</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button class="btn btn-filter" onclick="applyFilters()">
+                            <i class="bi bi-check-circle me-1"></i>Terapkan Filter
+                        </button>
+                        <button class="btn btn-filter btn-clear" onclick="clearFilters()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Summary -->
+            <div class="filter-summary" id="filterSummary" style="display: none;"></div>
+
+            <!-- Add New SOP Form -->
+            <div class="form-container" id="addSOPForm" style="display: none;">
+                <h3 class="form-title">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Tambah SOP/SE Baru
+                </h3>
+                
+                <form id="sopForm" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="sopName" class="form-label">Nama SOP/SE *</label>
+                            <input type="text" class="form-control" id="sopName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="sopNumber" class="form-label">No. SK/SE Terkait SOP dan BPP *</label>
+                            <input type="text" class="form-control" id="sopNumber" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="sopDepartment" class="form-label">Dept Pemilik SOP *</label>
+                            <select class="form-select" id="sopDepartment" required>
+                                <option value="">Pilih Departemen</option>
+                                <option value="perencanaan">Perencanaan Strategis & Kinerja Organisasi</option>
+                                <option value="pembinaan">Pembinaan Cabang</option>
+                                <option value="pengembangan">Pengembangan Organisasi</option>
+                                <option value="change">Change Management Office</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="sopType" class="form-label">Jenis Dokumen *</label>
+                            <select class="form-select" id="sopType" required>
+                                <option value="">Pilih Jenis</option>
+                                <option value="SOP">Standard Operating Procedure (SOP)</option>
+                                <option value="SE">Surat Edaran Direksi (SE)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="sopDescription" class="form-label">Deskripsi (Opsional)</label>
+                        <textarea class="form-control" id="sopDescription" rows="3" placeholder="Masukkan deskripsi singkat tentang SOP/SE ini"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Upload File PDF *</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                            <h5>Drag & Drop file PDF di sini</h5>
+                            <p class="text-muted">atau <a href="#" id="browseFile">klik untuk browse file</a></p>
+                            <small class="text-muted">Maksimum ukuran file: 25 MB</small>
+                            <input type="file" id="pdfFile" accept=".pdf" style="display: none;" required>
+                        </div>
+                        <div id="fileInfo" class="mt-2" style="display: none;">
+                            <div class="alert alert-info alert-custom">
+                                <i class="bi bi-file-pdf me-2"></i>
+                                <span id="fileName"></span>
+                                <small class="d-block">Ukuran: <span id="fileSize"></span></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner-border" style="color: var(--secondary-color);" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Mengupload file...</p>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="button" class="btn btn-secondary me-3" onclick="toggleAddForm()">
+                            <i class="bi bi-x-circle me-2"></i>Batal
+                        </button>
+                        <button type="submit" class="btn btn-add">
+                            <i class="bi bi-check-circle me-2"></i>Simpan SOP/SE
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Add Button -->
+            <div class="text-center mb-4">
+                <button class="btn btn-add btn-lg" onclick="toggleAddForm()">
+                    <i class="bi bi-plus-circle me-2"></i>Tambah SOP/SE Baru
+                </button>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <i class="bi bi-search display-4 mb-3"></i>
+                <h4>Tidak ada hasil yang ditemukan</h4>
+                <p>Coba ubah kata kunci pencarian atau filter yang digunakan</p>
+            </div>
+
+            <!-- Departments Section -->
+            <div id="departmentsContainer">
+                <!-- Department cards will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div class="modal fade" id="pdfModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background: var(--primary-color); color: white;">
+                    <h5 class="modal-title" id="pdfModalTitle">Preview PDF</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe id="pdfViewer" width="100%" height="600" frameborder="0"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <a id="downloadPDF" class="btn btn-custom" target="_blank">
+                        <i class="bi bi-download me-2"></i>Download PDF
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase v9 SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, orderBy, query, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVOF1qyO3gJC23Yb2ZVK4mpQlugpFJjeM",
+            authDomain: "bssbmain.firebaseapp.com",
+            projectId: "bssbmain",
+            storageBucket: "bssbmain.firebasestorage.app",
+            messagingSenderId: "469307921650",
+            appId: "1:469307921650:web:5db489712aabf7876eec6b",
+            measurementId: "G-2SQ5GDPWTQ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Global variables
+        let sopData = [];
+        let filteredData = [];
+        let currentFilters = {
+            search: '',
+            department: '',
+            type: '',
+            date: ''
+        };
+        let pdfModal;
+
+        // Department configurations
+        const departments = {
+            perencanaan: {
+                name: "Dept Perencanaan Strategis & Kinerja Organisasi",
+                icon: "bi-graph-up-arrow",
+                class: "dept-perencanaan"
+            },
+            pembinaan: {
+                name: "Dept Pembinaan Cabang", 
+                icon: "bi-building",
+                class: "dept-pembinaan"
+            },
+            pengembangan: {
+                name: "Dept Pengembangan Organisasi",
+                icon: "bi-people",
+                class: "dept-pengembangan"
+            },
+            change: {
+                name: "Dept Change Management Office",
+                icon: "bi-arrow-repeat",
+                class: "dept-change"
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            pdfModal = new bootstrap.Modal(document.getElementById('pdfModal'));
+            loadSOPs();
+            setupEventListeners();
+            setupFilterListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // File upload events
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const pdfFileInput = document.getElementById('pdfFile');
+            const browseFileLink = document.getElementById('browseFile');
+
+            browseFileLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                pdfFileInput.click();
+            });
+
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type === 'application/pdf') {
+                    pdfFileInput.files = files;
+                    showFileInfo(files[0]);
+                }
+            });
+
+            pdfFileInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    showFileInfo(e.target.files[0]);
+                }
+            });
+
+            // Form submission
+            document.getElementById('sopForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        // Setup filter listeners
+        function setupFilterListeners() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.search = e.target.value;
+                    applyFilters();
+                }, 300);
+            });
+        }
+
+        // Apply filters
+        window.applyFilters = function() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const department = document.getElementById('departmentFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+
+            currentFilters = { search, department, type, date: dateFilter };
+
+            filteredData = sopData.filter(sop => {
+                // Search filter
+                if (search && !matchesSearch(sop, search)) return false;
+                
+                // Department filter
+                if (department && sop.department !== department) return false;
+                
+                // Type filter
+                if (type && sop.type !== type) return false;
+                
+                // Date filter
+                if (dateFilter && !matchesDateFilter(sop, dateFilter)) return false;
+                
+                return true;
+            });
+
+            renderDepartments();
+            updateFilterSummary();
+            updateStats();
+        };
+
+        // Clear filters
+        window.clearFilters = function() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('departmentFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            
+            currentFilters = { search: '', department: '', type: '', date: '' };
+            filteredData = [...sopData];
+            
+            renderDepartments();
+            hideFilterSummary();
+            updateStats();
+        };
+
+        // Check if SOP matches search query
+        function matchesSearch(sop, search) {
+            const searchFields = [
+                sop.name,
+                sop.number,
+                sop.description || '',
+                sop.fileName,
+                departments[sop.department]?.name || ''
+            ];
+            
+            return searchFields.some(field => 
+                field.toLowerCase().includes(search)
+            );
+        }
+
+        // Check if SOP matches date filter
+        function matchesDateFilter(sop, dateFilter) {
+            if (!sop.createdAt) return false;
+            
+            const createdDate = sop.createdAt.toDate ? sop.createdAt.toDate() : new Date(sop.createdAt);
+            const now = new Date();
+            
+            switch (dateFilter) {
+                case 'today':
+                    return createdDate.toDateString() === now.toDateString();
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return createdDate >= weekAgo;
+                case 'month':
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return createdDate >= monthAgo;
+                case 'year':
+                    return createdDate.getFullYear() === now.getFullYear();
+                default:
+                    return true;
+            }
+        }
+
+        // Update filter summary
+        function updateFilterSummary() {
+            const summary = document.getElementById('filterSummary');
+            const hasFilters = Object.values(currentFilters).some(filter => filter !== '');
+            
+            if (!hasFilters) {
+                hideFilterSummary();
+                return;
+            }
+
+            let summaryText = 'Filter aktif: ';
+            const filterParts = [];
+
+            if (currentFilters.search) {
+                filterParts.push(`Pencarian: "${currentFilters.search}"`);
+            }
+            if (currentFilters.department) {
+                const deptName = departments[currentFilters.department]?.name || currentFilters.department;
+                filterParts.push(`Departemen: ${deptName}`);
+            }
+            if (currentFilters.type) {
+                filterParts.push(`Jenis: ${currentFilters.type}`);
+            }
+            if (currentFilters.date) {
+                const dateLabels = {
+                    'today': 'Hari Ini',
+                    'week': '7 Hari Terakhir', 
+                    'month': '30 Hari Terakhir',
+                    'year': 'Tahun Ini'
+                };
+                filterParts.push(`Periode: ${dateLabels[currentFilters.date]}`);
+            }
+
+            summaryText += filterParts.join(' • ');
+            summaryText += ` (${filteredData.length} hasil ditemukan)`;
+            
+            summary.innerHTML = `
+                <i class="bi bi-funnel me-2"></i>${summaryText}
+                <button class="btn btn-sm btn-outline-secondary ms-3" onclick="clearFilters()" style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem;">
+                    <i class="bi bi-x"></i> Clear
+                </button>
+            `;
+            summary.style.display = 'block';
+        }
+
+        // Hide filter summary
+        function hideFilterSummary() {
+            document.getElementById('filterSummary').style.display = 'none';
+        }
+
+        // Highlight search terms in text
+        function highlightSearchTerm(text, searchTerm) {
+            if (!searchTerm || !text) return text;
+            
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Show file information
+        function showFileInfo(file) {
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const fileInfo = document.getElementById('fileInfo');
+
+            if (file.size > 25 * 1024 * 1024) { // 25MB limit
+                showAlert('File terlalu besar! Maksimum ukuran adalah 25 MB.', 'danger');
+                document.getElementById('pdfFile').value = '';
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Handle form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const sopName = document.getElementById('sopName').value;
+            const sopNumber = document.getElementById('sopNumber').value;
+            const sopDepartment = document.getElementById('sopDepartment').value;
+            const sopType = document.getElementById('sopType').value;
+            const sopDescription = document.getElementById('sopDescription').value;
+            const pdfFile = document.getElementById('pdfFile').files[0];
+
+            if (!pdfFile) {
+                showAlert('Silakan pilih file PDF terlebih dahulu.', 'danger');
+                return;
+            }
+
+            try {
+                // Show loading
+                document.getElementById('loadingSpinner').style.display = 'block';
+                
+                // Upload file to Firebase Storage
+                const storageRef = ref(storage, `sop-documents/${Date.now()}_${pdfFile.name}`);
+                const uploadTask = uploadBytesResumable(storageRef, pdfFile);
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Progress monitoring can be added here
+                    },
+                    (error) => {
+                        console.error('Upload error:', error);
+                        showAlert('Gagal mengupload file. Silakan coba lagi.', 'danger');
+                        document.getElementById('loadingSpinner').style.display = 'none';
+                    },
+                    async () => {
+                        try {
+                            // Get download URL
+                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                            // Save to Firestore
+                            await addDoc(collection(db, 'sop-documents'), {
+                                name: sopName,
+                                number: sopNumber,
+                                department: sopDepartment,
+                                type: sopType,
+                                description: sopDescription,
+                                fileName: pdfFile.name,
+                                fileSize: pdfFile.size,
+                                downloadURL: downloadURL,
+                                createdAt: serverTimestamp()
+                            });
+
+                            // Hide loading
+                            document.getElementById('loadingSpinner').style.display = 'none';
+                            
+                            // Show success message
+                            showAlert('SOP/SE berhasil ditambahkan!', 'success');
+                            
+                            // Reset form
+                            document.getElementById('sopForm').reset();
+                            document.getElementById('fileInfo').style.display = 'none';
+                            
+                            // Hide form
+                            toggleAddForm();
+                            
+                            // Reload data
+                            loadSOPs();
+
+                        } catch (error) {
+                            console.error('Firestore error:', error);
+                            showAlert('Gagal menyimpan data. Silakan coba lagi.', 'danger');
+                            document.getElementById('loadingSpinner').style.display = 'none';
+                        }
+                    }
+                );
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Terjadi kesalahan. Silakan coba lagi.', 'danger');
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        // Load SOPs from Firestore
+        async function loadSOPs() {
+            try {
+                const q = query(collection(db, 'sop-documents'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                sopData = [];
+                querySnapshot.forEach((doc) => {
+                    sopData.push({ id: doc.id, ...doc.data() });
+                });
+
+                filteredData = [...sopData];
+                renderDepartments();
+                updateStats();
+
+            } catch (error) {
+                console.error('Error loading SOPs:', error);
+                showAlert('Gagal memuat data SOP. Silakan refresh halaman.', 'danger');
+            }
+        }
+
+        // Render departments
+        function renderDepartments() {
+            const container = document.getElementById('departmentsContainer');
+            const noResults = document.getElementById('noResults');
+            container.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            Object.keys(departments).forEach(deptKey => {
+                const dept = departments[deptKey];
+                const deptSOPs = filteredData.filter(sop => sop.department === deptKey);
+                
+                // Skip departments with no matching SOPs if filtering is active
+                const hasActiveFilters = Object.values(currentFilters).some(filter => filter !== '');
+                if (hasActiveFilters && deptSOPs.length === 0) return;
+
+                const card = document.createElement('div');
+                card.className = `department-card ${dept.class}`;
+                card.innerHTML = `
+                    <div class="department-header" onclick="toggleDepartment('${deptKey}')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="bi ${dept.icon} me-3 fs-4"></i>
+                                <h4 class="mb-0">${dept.name}</h4>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="sop-count me-3">${deptSOPs.length} SOP/SE</span>
+                                <i class="bi bi-chevron-down" id="chevron-${deptKey}"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse" id="collapse-${deptKey}">
+                        <div class="department-content">
+                            ${deptSOPs.length === 0 ? 
+                                '<div class="text-center py-5 text-muted"><i class="bi bi-inbox display-4 d-block mb-3"></i><h5>Belum ada SOP/SE</h5><p>Silakan tambahkan SOP/SE untuk departemen ini</p></div>' :
+                                deptSOPs.map(sop => `
+                                    <div class="sop-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="sop-title">${highlightSearchTerm(sop.name, currentFilters.search)}</div>
+                                                <div class="sop-details">
+                                                    <div><strong>No. SK/SE:</strong> ${highlightSearchTerm(sop.number, currentFilters.search)}</div>
+                                                    <div><strong>Jenis:</strong> <span class="badge" style="background-color: var(--secondary-color); color: white;">${sop.type}</span></div>
+                                                    ${sop.description ? `<div><strong>Deskripsi:</strong> ${highlightSearchTerm(sop.description, currentFilters.search)}</div>` : ''}
+                                                    <div><strong>File:</strong> ${highlightSearchTerm(sop.fileName, currentFilters.search)} (${formatFileSize(sop.fileSize)})</div>
+                                                    ${sop.createdAt ? `<div><strong>Uploaded:</strong> ${formatDate(sop.createdAt)}</div>` : ''}
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-pdf btn-sm ms-3" onclick="openPDF('${sop.downloadURL}', '${sop.name}')">
+                                                <i class="bi bi-file-pdf me-1"></i>Lihat PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Format date
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Unknown';
+            
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Toggle department collapse
+        window.toggleDepartment = function(deptKey) {
+            const collapse = document.getElementById(`collapse-${deptKey}`);
+            const chevron = document.getElementById(`chevron-${deptKey}`);
+            
+            if (collapse.classList.contains('show')) {
+                collapse.classList.remove('show');
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                collapse.classList.add('show');
+                chevron.style.transform = 'rotate(180deg)';
+            }
+        };
+
+        // Open PDF in modal
+        window.openPDF = function(url, title) {
+            document.getElementById('pdfModalTitle').textContent = title;
+            document.getElementById('pdfViewer').src = url;
+            document.getElementById('downloadPDF').href = url;
+            pdfModal.show();
+        };
+
+        // Toggle add form
+        window.toggleAddForm = function() {
+            const form = document.getElementById('addSOPForm');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                form.style.display = 'none';
+                document.getElementById('sopForm').reset();
+                document.getElementById('fileInfo').style.display = 'none';
+            }
+        };
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-custom alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalSize = sopData.reduce((sum, sop) => sum + (sop.fileSize || 0), 0);
+
+            document.getElementById('totalSOP').textContent = sopData.length;
+            document.getElementById('filteredSOP').textContent = filteredData.length;
+            document.getElementById('totalSize').textContent = (totalSize / (1024 * 1024)).toFixed(1);
+        }
+
+    </script>
+</body>
+</html>
